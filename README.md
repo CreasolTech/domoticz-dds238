@@ -14,7 +14,9 @@ The following items can be configured:
 * Meter address, for example 1 (only one meter with default slave address) or 11,12 (two devices with address 11 and 12: address should be separated by comma)
 * Poll interval, in seconds: in case of a long list of devices, don't use very short poll intervals!
 
-Please note that while it's possible to easily connect many DDS238 ZN/S meters to the same RS485 bus, by using a common shielded cable within 2 wires (A and B terminal blocks) to a cheap RS485/USB adaper/converter.
+Please note that it's possible to easily connect many DDS238 ZN/S meters to the same RS485 bus, by using a common shielded cable within 2 wires (A and B terminal blocks) to a cheap RS485/USB adaper/converter.
+
+![DDS238-2 ZN/S single phase energy meter](https://docs.creasol.it/dds238_scheme.webp "DDS238-2 ZN/S single phase energy meter")
 
 ## Setting a different address for the meter
 
