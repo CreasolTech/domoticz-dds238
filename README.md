@@ -16,11 +16,13 @@ The following items can be configured:
 
 Please note that while it's possible to easily connect many DDS238 ZN/S meters to the same RS485 bus, by using a common shielded cable within 2 wires (A and B terminal blocks) to a cheap RS485/USB adaper/converter.
 
-## Setting a different address the meter
+## Setting a different address for the meter
 
-By default, DDS238 meters have slave address=1: when a meter with default address is connected to the RS485 bus, only a device will be created just to permit changing its address. Telemetry from default address meter will not be read!
+By default, DDS238 ZN/S meters have slave address=1: when a meter with default address is connected to the RS485 bus, only a device will be created just to permit changing its address. Telemetry from default address meter will not be read!
 
-To change the meter address, select the corresponding *Power Factor* device, edit the Description field writing ADDR=2  to change the meter address to 2. New address valid range is between 2 and 247.
+To change the meter address of a new meter with default address=1, select the *Change Address 1 -> 2-247* virtual device, edit the Description field writing **ADDR=2**  to change the meter address to 2. Address valid range is between 2 and 247.
+
+In case you want to change the address of a meter that already has an address between 2 and 247, select the corresponding *Power Factor* device, edit the Description field writing ADDR=3  to change the meter address to 3. Address valid range is between 2 and 247.
 
 Then, go to Setup -> Hardware -> DDS238 Plugin and add that address to the end of *Meter addresses* list. **NEVER CHANGE THE *Meter addresses* SEQUENCE** adding new devices in the middle, or you'll mix/loose previous telemetry!!
 
