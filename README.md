@@ -16,7 +16,7 @@ The following items can be configured:
 
 Please note that it's possible to easily connect many DDS238 ZN/S meters to the same RS485 bus, by using a common shielded cable within 2 wires (A and B terminal blocks) to a cheap RS485/USB adaper/converter.
 
-![DDS238-2 ZN/S single phase energy meter](https://docs.creasol.it/dds238_scheme.webp "DDS238-2 ZN/S single phase energy meter")
+![DDS238-2 ZN/S single phase energy meter](https://images.creasol.it/dds238_scheme.webp "DDS238-2 ZN/S single phase energy meter")
 
 ## Setting a different address for the meter
 
