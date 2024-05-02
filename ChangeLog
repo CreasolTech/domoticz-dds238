@@ -1,0 +1,7 @@
+# domoticz-dds238 plugin
+
+2024-05-02 v1.1
+Added the net energy / power meter, computing the Imported energy - Exported energy
+
+2024-01-29 v1.0
+First version

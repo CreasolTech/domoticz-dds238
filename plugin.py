@@ -22,9 +22,9 @@ English (en)            Italian (it)                    YourLanguage (??)
 """
 
 """
-<plugin key="dds238" name="DDS238 ZN/S energy meters, connected by serial port"  version="1.0" author="CreasolTech" externallink="https://github.com/CreasolTech/domoticz-dds238">
+<plugin key="dds238" name="DDS238 ZN/S energy meters, connected by serial port"  version="1.1" author="CreasolTech" externallink="https://github.com/CreasolTech/domoticz-dds238">
     <description>
-        <h2>Domoticz plugin for DDS238 ZN/S energy meters (with Modbus port) - Version 1.0 </h2>
+        <h2>Domoticz plugin for DDS238 ZN/S energy meters (with Modbus port) - Version 1.1 </h2>
         <b>More than one meter can be connected to the same bus</b>, specifying their addresses separated by comma, for example <tt>2,3,124</tt>  to read energy meters with slave address 1, 2, 3, 124.<br/><u>DO NOT CHANGE THE EXISTING SEQUENCE</u> by adding new devices between inside, but just add new device in the end of the sequence, e.g. <tt>2,3,124,6,4,5</tt><br/>
         It's possible to reprogram a meter slave address by editing the corresponding Power Factor device Description field, changing ADDR=x to ADDR=y (y between 1 and 247), then clicking on Update button<br/>
         When the first meter is connected, <b>it's strongly recommended to immediately change default address from 1 to 2 (or more)</b> to permit, in the future, to add new meters.<br/>
@@ -72,6 +72,7 @@ DEVS={ #unit:     Type,Sub,swtype, Options, Image,  "en name", "it name"  ...oth
             5:  [ 243,23,0,     None,       None,   "Current",          "Corrente"      ],
             6:  [ 243,31,0,     {'Custom': '1;Hz'}, None,   "Frequency","Frequenza"     ],
             7:  [ 243,31,0,     None,       None,   "Power Factor",     "Fattore di Potenza"   ],
+            8:  [ 243,29,0,     None,       None,   "Power/Energy net",   "Potenza/Energia netta"   ],
             # ToDo: add relay device?
 }
 
@@ -133,6 +134,8 @@ class BasePlugin:
                             Description=f"Meter Addr={slave}, Total power = imported + exported"
                         elif i==7:
                             Description=f"Meter Addr={slave}, Power Factor, ADDR={slave}"
+                        elif i==8:
+                            Description=f"Meter Addr={slave}, Net power = imported - exported"
                         else:
                             Description=f"Meter Addr={slave}"
                         Domoticz.Log(f"Creating device Name={DEVS[i][self.lang]}, Description={Description}, Unit=unit, Type={DEVS[i][DEVTYPE]}, Subtype={DEVS[i][DEVSUBTYPE]}, Switchtype={DEVS[i][DEVSWITCHTYPE]} Options={Options}, Image={Image}")
@@ -175,6 +178,7 @@ class BasePlugin:
                     energy=(registerEnergy[1] + (registerEnergy[0]<<16))*10 # Wh
                     energyImp=(register[3] + (register[2]<<16))*10     # Wh
                     energyExp=(register[1] + (register[0]<<16))*10     # Wh
+                    energyNet=energyImp-energyExp
                     frequency=register[9]/100                       # Hz
                     pf=register[8]/10                               # %
 
@@ -186,6 +190,7 @@ class BasePlugin:
                     Devices[s+5].Update(0, str(current))
                     Devices[s+6].Update(0, str(frequency))
                     Devices[s+7].Update(0, str(pf))
+                    Devices[s+8].Update(0, f"{power};{energyNet}")      # Net energy = imported energy - exported energy.  power=signed energy (negative if exported)
                 s+=DEVSMAX    # Increment the base for each device unit
 
     def onCommand(self, Unit, Command, Level, Hue):

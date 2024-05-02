@@ -61,14 +61,14 @@ Restart Domoticz, then go to Setup -> Hardware and add the DDS238 plugin, specif
 ```
 Words to translate in other languages (in double quotes):
 English (en)            Italian (it)                    YourLanguage (??)
-"Power/Energy total"    "Potenza/Energia totale         ""
+"Power/Energy total"    "Potenza/Energia totale"        ""
 "Power/Energy imported" "Potenza/Energia importata"     ""
 "Power/Energy exported" "Potenza/Energia esportata"     ""
 "Voltage"               "Tensione"                      ""
 "Current"               "Corrente"                      ""
 "Frequency"             "Frequenza"                     ""
 "Power Factor"          "Fattore di Potenza"            ""
-
+"Power/Energy net"		"Potenza/Energia netta"			""
 ```
 
 ## Modbus holding registers:
