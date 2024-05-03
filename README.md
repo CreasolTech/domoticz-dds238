@@ -34,6 +34,7 @@ Then, go to Setup -> Hardware -> DDS238 Plugin and add that address to the end o
 
 ![Net energy and power, using DDS238 ZN/S single phase energy meter with Domoticz](https://images.creasol.it/dds238_net_energy.webp "Net energy and power, using DDS238 ZN/S single phase energy meter with Domoticz")
 
+
 # Installation
 
 This plugin can be installed from [Python Plugin Manager](https://github.com/ycahome/pp-manager) or [Python Plugins Manager](https://github.com/stas-demydiuk/domoticz-plugins-manager) which also permit to update plugin easily or automatically.
