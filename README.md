@@ -1,7 +1,8 @@
 # domoticz-dds238 
 
 This is a plugin for the free open-source [Domoticz home automation system](https://www.domoticz.com) that **read one or more DDS238 ZN/S energy meters by Modbus connection** (RS485 serial connection), providing the following data: 
-* total active energy
+* net active energy and power (imported - exported energy)
+* total active energy (imported + exported energy)
 * import active energy and power
 * export active energy and power
 * voltage
@@ -9,7 +10,10 @@ This is a plugin for the free open-source [Domoticz home automation system](http
 * frequency
 * power factor
 
-The following items can be configured:
+![DDS238 ZN/S single phase energy meter](https://images.creasol.it/dds238_panel.webp "DDS238 ZN/S single phase energy meter shown in the Domoticz panel")
+
+
+It's possible to configure:
 * Bitrate, by default 9600 bps
 * Meter address, for example 1 (only one meter with default slave address) or 11,12 (two devices with address 11 and 12: address should be separated by comma)
 * Poll interval, in seconds: in case of a long list of devices, don't use very short poll intervals!
@@ -28,6 +32,7 @@ In case you want to change the address of a meter that already has an address be
 
 Then, go to Setup -> Hardware -> DDS238 Plugin and add that address to the end of *Meter addresses* list. **NEVER CHANGE THE *Meter addresses* SEQUENCE** adding new devices in the middle, or you'll mix/loose previous telemetry!!
 
+![Net energy and power, using DDS238 ZN/S single phase energy meter with Domoticz](https://images.creasol.it/dds238_net_energy.webp "Net energy and power, using DDS238 ZN/S single phase energy meter with Domoticz")
 
 # Installation
 
