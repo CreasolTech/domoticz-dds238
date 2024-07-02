@@ -3,6 +3,10 @@
 2024-07-02 Rev.2.0
 Changed class to use the DomoticzEx model instead of Domoticz. Requires
 Domoticz version 2022.1 or later.
+PLEASE NOTE THAT UPDATING THE PLUGIN, NEW DEVICES WILL BE CREATED: to recover
+data from the old ones, select old devices one-by-one (in the Utility panel),
+click on Replace button and select the name of the newly created device! In
+this way you do not loose the history.
 
 2024-05-02 Rev.1.1
 Added the net energy / power meter, computing the Imported energy - Exported energy

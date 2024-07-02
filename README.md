@@ -61,6 +61,10 @@ sudo pip3 install minimalmodbus
 
 Restart Domoticz, then go to Setup -> Hardware and add the DDS238 plugin, specifying a name for that hardware and the serial port.
 
+# Upgrade
+**PLEASE NOTE THAT UPDATING THE PLUGIN, NEW DEVICES WILL BE CREATED** because the plugin has been rewritten to use the DomoticzEx class instead of the old legacy Domoticz class: 
+to recover data from the old ones, select old devices one-by-one (in the Utility panel), click on Replace button and select the name of the newly created device! 
+In this way you do not loose the history.
 
 ## Translation in other languages
 **Plugin can be easily translate in other languages**: just copy and translate the rows below, and open an issue on github writing the modified lines with your translations, with the language code.
