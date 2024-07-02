@@ -101,12 +101,14 @@ class BasePlugin:
 
     def onStart(self):
         Domoticz.Log("Starting DDS238 plugin")
+        #Domoticz.Dump() #DEBUG
         self.pollTime=30 if Parameters['Mode3']=="" else int(Parameters['Mode3'])
         self.heartbeatNow=self.pollTime     # this is used to increase heartbeat in case of collisions
         Domoticz.Heartbeat(self.pollTime)
         self.runInterval = 1
         self.prefix = f"{DEVICEIDPREFIX}_{Parameters['HardwareID']}"
         self._lang=Settings["Language"]
+
         # check if language set in domoticz exists
         if self._lang in LANGS:
             self.lang=DEVLANG+LANGS.index(self._lang)
@@ -124,7 +126,7 @@ class BasePlugin:
         devID=f"{self.prefix}_1"
         if devID not in Devices or 7 not in Devices[devID].Units:
             Domoticz.Log("Create virtual device to change DDS238 address for meters with default address=1")
-            Domoticz.Unit(DeviceID=devID, Name="Change address 1 -> 2-247", Description=f"Meter Addr=1, ADDR=1", Unit=7, Type=243, Subtype=19, Used=1).Create()
+            Domoticz.Unit(DeviceID=devID, Name=f"Meter=1: Change address 1 -> 2-247", Description=f"Meter Addr=1, ADDR=1", Unit=7, Type=243, Subtype=19, Used=1).Create()
         # Check that all devices exist, or create them
         for slave in self.slaves:
             if slave>1 and slave<=247:  # DeviceID=slave address, Unit=1..8
@@ -143,8 +145,8 @@ class BasePlugin:
                             Description=f"Meter Addr={slave}, Net power = imported - exported"
                         else:
                             Description=f"Meter Addr={slave}"
-                        Domoticz.Log(f"Creating device DeviceID={devID}, Name='{DEVS[i][self.lang]}', Description='{Description}', Unit={unit}, Type={DEVS[i][DEVTYPE]}, Subtype={DEVS[i][DEVSUBTYPE]}, Switchtype={DEVS[i][DEVSWITCHTYPE]}, Options={Options}, Image={Image}")
-                        Domoticz.Unit(DeviceID=devID, Name=DEVS[i][self.lang], Description=Description, Unit=unit, Type=DEVS[i][DEVTYPE], Subtype=DEVS[i][DEVSUBTYPE], Switchtype=DEVS[i][DEVSWITCHTYPE], Options=Options, Image=Image, Used=1).Create()
+                        Domoticz.Log(f"Creating device DeviceID={devID}, Name='Meter={slave}: {DEVS[i][self.lang]}', Description='{Description}', Unit={unit}, Type={DEVS[i][DEVTYPE]}, Subtype={DEVS[i][DEVSUBTYPE]}, Switchtype={DEVS[i][DEVSWITCHTYPE]}, Options={Options}, Image={Image}")
+                        Domoticz.Unit(DeviceID=devID, Name=f"Meter={slave}: {DEVS[i][self.lang]}", Description=Description, Unit=unit, Type=DEVS[i][DEVTYPE], Subtype=DEVS[i][DEVSUBTYPE], Switchtype=DEVS[i][DEVSWITCHTYPE], Options=Options, Image=Image, Used=1).Create()
                 s+=DEVSMAX
 
 

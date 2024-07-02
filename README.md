@@ -10,6 +10,8 @@ This is a plugin for the free open-source [Domoticz home automation system](http
 * frequency
 * power factor
 
+Below the Domoticz panel, using plugin version 1.0 (check below for the newer plugin screenshot):
+
 ![DDS238 ZN/S single phase energy meter](https://images.creasol.it/dds238_panel.webp "DDS238 ZN/S single phase energy meter shown in the Domoticz panel")
 
 
@@ -21,6 +23,10 @@ It's possible to configure:
 Please note that it's possible to easily connect many DDS238 ZN/S meters to the same RS485 bus, by using a common shielded cable within 2 wires (A and B terminal blocks) to a cheap RS485/USB adaper/converter.
 
 ![DDS238-2 ZN/S single phase energy meter](https://images.creasol.it/dds238_scheme.webp "DDS238-2 ZN/S single phase energy meter")
+
+Below the Domoticz panel using plugin version 2.0, with two meters connected to the same bus (Modbus address 3 and 4: meter with address 4 has blank values because not connected):
+
+![DDS238 ZN/S single phase energy meter, using plugin version 2.0](https://images.creasol.it/dds238_panel4.webp "DDS238 ZN/S single phase energy meter shown in the Domoticz panel, using plugin version 2.0")
 
 ## Setting a different address for the meter
 
