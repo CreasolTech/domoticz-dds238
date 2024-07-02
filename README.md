@@ -35,7 +35,7 @@ Then, go to Setup -> Hardware -> DDS238 Plugin and add that address to the end o
 ![Net energy and power, using DDS238 ZN/S single phase energy meter with Domoticz](https://images.creasol.it/dds238_net_energy.webp "Net energy and power, using DDS238 ZN/S single phase energy meter with Domoticz")
 
 
-# Installation
+## Installation
 
 This plugin can be installed from [Python Plugin Manager](https://github.com/ycahome/pp-manager) or [Python Plugins Manager](https://github.com/stas-demydiuk/domoticz-plugins-manager) which also permit to update plugin easily or automatically.
 
@@ -61,8 +61,8 @@ sudo pip3 install minimalmodbus
 
 Restart Domoticz, then go to Setup -> Hardware and add the DDS238 plugin, specifying a name for that hardware and the serial port.
 
-# Upgrade
-**PLEASE NOTE THAT UPDATING THE PLUGIN, NEW DEVICES WILL BE CREATED** because the plugin has been rewritten to use the DomoticzEx class instead of the old legacy Domoticz class: 
+## Upgrade
+**PLEASE NOTE THAT UPDATING THE PLUGIN from version 1.x, NEW DEVICES WILL BE CREATED** because the plugin has been rewritten to use the DomoticzEx class instead of the old legacy Domoticz class: 
 to recover data from the old ones, select old devices one-by-one (in the Utility panel), click on Replace button and select the name of the newly created device! 
 In this way you do not loose the history.
 
