@@ -8,6 +8,7 @@ Requirements:
     1.python module minimalmodbus -> http://minimalmodbus.readthedocs.io/en/master/
         (pi@raspberrypi:~$ sudo pip3 install minimalmodbus)
     2.USB to RS485 adapter/converter 
+    3.Domoticz 2022.1 or later
 
 Words to translate in other languages (in double quotes):
 English (en)            Italian (it)                    YourLanguage (??)
@@ -22,9 +23,9 @@ English (en)            Italian (it)                    YourLanguage (??)
 """
 
 """
-<plugin key="dds238" name="DDS238 ZN/S energy meters, connected by serial port"  version="1.1" author="CreasolTech" externallink="https://github.com/CreasolTech/domoticz-dds238">
+<plugin key="dds238" name="DDS238 ZN/S energy meters, connected by serial port"  version="2.0" author="CreasolTech" externallink="https://github.com/CreasolTech/domoticz-dds238">
     <description>
-        <h2>Domoticz plugin for DDS238 ZN/S energy meters (with Modbus port) - Version 1.1 </h2>
+        <h2>Domoticz plugin for DDS238 ZN/S energy meters (with Modbus port) - Version 2.0 </h2>
         <b>More than one meter can be connected to the same bus</b>, specifying their addresses separated by comma, for example <tt>2,3,124</tt>  to read energy meters with slave address 1, 2, 3, 124.<br/><u>DO NOT CHANGE THE EXISTING SEQUENCE</u> by adding new devices between inside, but just add new device in the end of the sequence, e.g. <tt>2,3,124,6,4,5</tt><br/>
         It's possible to reprogram a meter slave address by editing the corresponding Power Factor device Description field, changing ADDR=x to ADDR=y (y between 1 and 247), then clicking on Update button<br/>
         When the first meter is connected, <b>it's strongly recommended to immediately change default address from 1 to 2 (or more)</b> to permit, in the future, to add new meters.<br/>
@@ -52,7 +53,7 @@ English (en)            Italian (it)                    YourLanguage (??)
 
 import minimalmodbus    #v2.1.1
 import random
-import Domoticz         #tested on Python 3.9.2 in Domoticz 2021.1 and 2023.1
+import DomoticzEx as Domoticz     
 
 
 
@@ -77,11 +78,13 @@ DEVS={ #unit:     Type,Sub,swtype, Options, Image,  "en name", "it name"  ...oth
 }
 
 DEVSMAX=10;
+DEVICEIDPREFIX="DDS238"
 
 class BasePlugin:
     def __init__(self):
         self.rs485 = ""
         self.slaves = [1]
+        self.prefix = ""
         return
 
     def modbusInit(self, slave):
@@ -102,6 +105,7 @@ class BasePlugin:
         self.heartbeatNow=self.pollTime     # this is used to increase heartbeat in case of collisions
         Domoticz.Heartbeat(self.pollTime)
         self.runInterval = 1
+        self.prefix = f"{DEVICEIDPREFIX}_{Parameters['HardwareID']}"
         self._lang=Settings["Language"]
         # check if language set in domoticz exists
         if self._lang in LANGS:
@@ -116,17 +120,18 @@ class BasePlugin:
             if s>=2 and s<=247:
                 self.slaves.append(s)
 
-        # Check that device used to change default address exists
-        if 7 not in Devices:
+        # Check that device used to change default address for slave=1 exists
+        devID=f"{self.prefix}_1"
+        if devID not in Devices or 7 not in Devices[devID].Units:
             Domoticz.Log("Create virtual device to change DDS238 address for meters with default address=1")
-            Domoticz.Device(Name="Change address 1 -> 2-247", Description=f"Meter Addr={slave}, ADDR=1", Unit=7, Type=243, Subtype=19, Used=1).Create()
+            Domoticz.Unit(DeviceID=devID, Name="Change address 1 -> 2-247", Description=f"Meter Addr=1, ADDR=1", Unit=7, Type=243, Subtype=19, Used=1).Create()
         # Check that all devices exist, or create them
-        s=DEVSMAX     # s used to compute unit for each energy meter: s=10, 20, 30, ... (base unit number for the current energy meter)
         for slave in self.slaves:
-            if slave>1 and slave<=247:
+            if slave>1 and slave<=247:  # DeviceID=slave address, Unit=1..8
+                devID=f"{self.prefix}_{slave}"
                 for i in DEVS:
-                    unit=s+i
-                    if unit<=250 and unit not in Devices:
+                    unit=i
+                    if devID not in Devices or unit not in Devices[devID].Units:
                         Options=DEVS[i][DEVOPTIONS] if DEVS[i][DEVOPTIONS] else {}
                         Image=DEVS[i][DEVIMAGE] if DEVS[i][DEVIMAGE] else 0
                         Description=""
@@ -138,8 +143,8 @@ class BasePlugin:
                             Description=f"Meter Addr={slave}, Net power = imported - exported"
                         else:
                             Description=f"Meter Addr={slave}"
-                        Domoticz.Log(f"Creating device Name={DEVS[i][self.lang]}, Description={Description}, Unit=unit, Type={DEVS[i][DEVTYPE]}, Subtype={DEVS[i][DEVSUBTYPE]}, Switchtype={DEVS[i][DEVSWITCHTYPE]} Options={Options}, Image={Image}")
-                        Domoticz.Device(Name=DEVS[i][self.lang], Description=Description, Unit=unit, Type=DEVS[i][DEVTYPE], Subtype=DEVS[i][DEVSUBTYPE], Switchtype=DEVS[i][DEVSWITCHTYPE], Options=Options, Image=Image, Used=1).Create()
+                        Domoticz.Log(f"Creating device DeviceID={devID}, Name='{DEVS[i][self.lang]}', Description='{Description}', Unit={unit}, Type={DEVS[i][DEVTYPE]}, Subtype={DEVS[i][DEVSUBTYPE]}, Switchtype={DEVS[i][DEVSWITCHTYPE]}, Options={Options}, Image={Image}")
+                        Domoticz.Unit(DeviceID=devID, Name=DEVS[i][self.lang], Description=Description, Unit=unit, Type=DEVS[i][DEVTYPE], Subtype=DEVS[i][DEVSUBTYPE], Switchtype=DEVS[i][DEVSWITCHTYPE], Options=Options, Image=Image, Used=1).Create()
                 s+=DEVSMAX
 
 
@@ -147,7 +152,6 @@ class BasePlugin:
         Domoticz.Log("Stopping DDS238 plugin")
 
     def onHeartbeat(self):
-        s=DEVSMAX
         for slave in self.slaves:
             # read all registers in one shot
             if slave>1 and slave<=247:
@@ -183,23 +187,31 @@ class BasePlugin:
                     pf=register[8]/10                               # %
 
                     Domoticz.Status(f"Slave={slave}, P={power}W E={energy/1000}kWh Imp={energyImp/1000}kWh Exp={energyExp/1000}kWh V={voltage}V I={current}A, f={frequency}Hz PF={pf}%")
-                    Devices[s+1].Update(0, f"{power};{energy}")
-                    Devices[s+2].Update(0, f"{powerImp};{energyImp}")      # imported power/energy
-                    Devices[s+3].Update(0, f"{powerExp};{energyExp}")      # exported power/energy
-                    Devices[s+4].Update(0, str(voltage))
-                    Devices[s+5].Update(0, str(current))
-                    Devices[s+6].Update(0, str(frequency))
-                    Devices[s+7].Update(0, str(pf))
-                    Devices[s+8].Update(0, f"{power};{energyNet}")      # Net energy = imported energy - exported energy.  power=signed energy (negative if exported)
-                s+=DEVSMAX    # Increment the base for each device unit
+                    devID=f"{self.prefix}_{slave}"
+                    Devices[devID].Units[1].sValue=f"{power};{energy}"
+                    Devices[devID].Units[1].Update()
+                    Devices[devID].Units[2].sValue=f"{powerImp};{energyImp}"      # imported power/energy
+                    Devices[devID].Units[2].Update()
+                    Devices[devID].Units[3].sValue=f"{powerExp};{energyExp}"      # exported power/energy
+                    Devices[devID].Units[3].Update()
+                    Devices[devID].Units[4].sValue=str(voltage)
+                    Devices[devID].Units[4].Update()
+                    Devices[devID].Units[5].sValue=str(current)
+                    Devices[devID].Units[5].Update()
+                    Devices[devID].Units[6].sValue=str(frequency)
+                    Devices[devID].Units[6].Update()
+                    Devices[devID].Units[7].sValue=str(pf)
+                    Devices[devID].Units[7].Update()
+                    Devices[devID].Units[8].sValue=f"{power};{energyNet}"      # Net energy = imported energy - exported energy.  power=signed energy (negative if exported)
+                    Devices[devID].Units[8].Update()
 
-    def onCommand(self, Unit, Command, Level, Hue):
+    def onCommand(self, DeviceID, Unit, Command, Level, Color):
         Domoticz.Status(f"Command for {Devices[Unit].Name}: Unit={Unit}, Command={Command}, Level={Level}")
 
-    def onDeviceModified(self, Unit): #called when device is modified by the domoticz frontend (e.g. when description or name was changed by the user)
-        Domoticz.Status(f"Modified DDS238 device with Unit={Unit}: Description="+Devices[Unit].Description)
-        if (Unit%DEVSMAX)==7:   # Power Factor device: check if Description contains ADDR=1..247
-            opts=Devices[Unit].Description.split(',')
+    def onDeviceModified(self, DeviceID, Unit): #called when device is modified by the domoticz frontend (e.g. when description or name was changed by the user)
+        Domoticz.Status(f"Modified DDS238 device with DeviceID={DeviceID} and Unit={Unit}: Description="+Devices[DeviceID].Units[Unit].Description)
+        if Unit==7:   # Power Factor device: check if Description contains ADDR=1..247
+            opts=Devices[DeviceID].Units[Unit].Description.split(',')
             for opt in opts:
                 opt=opt.strip().upper()
                 if (opt[:5]=="ADDR="):
@@ -223,7 +235,8 @@ class BasePlugin:
                             Domoticz.Error(f"Error writing Modbus register 0x15 (to change slave address) to device {slave}")
                         else:
                             Domoticz.Log(f"Device with slave address {slave} successfully reprogrammed with new slave address {par}")
-                            Devices[Unit].Update(nValue=Devices[Unit].nValue, sValue=Devices[Unit].sValue, Description=f"Power Factor,ADDR={slave}")
+                            Devices[DeviceID].Units[Unit].Description=f"Power Factor,ADDR={slave}"
+                            Devices[DeviceID].Units[Unit].Update(Log=True)
 
 
 global _plugin
