@@ -256,9 +256,9 @@ def onHeartbeat():
     global _plugin
     _plugin.onHeartbeat()
 
-def onCommand(DeviceID, Unit, Command, Level, Hue):
+def onCommand(DeviceID, Unit, Command, Level, Color):
     global _plugin
-    _plugin.onCommand(DeviceID, Unit, Command, Level, Hue)
+    _plugin.onCommand(DeviceID, Unit, Command, Level, Color)
 
 def onDeviceModified(Unit):
     global _plugin
