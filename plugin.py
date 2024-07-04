@@ -164,7 +164,7 @@ class BasePlugin:
                     register=self.rs485.read_registers(8, 10, 3) # Read  registers from 8 to 0x11, using function code 3
                     self.rs485.serial.close()  #  Close that door !
                 except:
-                    Domoticz.Error(f"Error reading Modbus registers from device {slave}")
+                    Domoticz.Error(f"Error reading Modbus registers from device {slave}: increment Heartbeat time")
                     self.heartbeatNow+=random.randint(1,5)    # manage collisions, increasing heartbeat once
                     Domoticz.Heartbeat(self.heartbeatNow)
                 else:
