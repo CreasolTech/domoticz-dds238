@@ -1,5 +1,8 @@
 # domoticz-dds238 plugin
 
+2024-12-02 Rev 2.1
+BugFix: Rev2.0 did not permit to change the slave address of a device. Fixed.
+
 2024-07-02 Rev.2.0
 Changed class to use the DomoticzEx model instead of Domoticz. Requires
 Domoticz version 2022.1 or later.

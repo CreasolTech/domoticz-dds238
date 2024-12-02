@@ -23,9 +23,9 @@ English (en)            Italian (it)                    YourLanguage (??)
 """
 
 """
-<plugin key="dds238" name="DDS238 ZN/S energy meters, connected by serial port"  version="2.0" author="CreasolTech" externallink="https://github.com/CreasolTech/domoticz-dds238">
+<plugin key="dds238" name="DDS238 ZN/S energy meters, connected by serial port"  version="2.1" author="CreasolTech" externallink="https://github.com/CreasolTech/domoticz-dds238">
     <description>
-        <h2>Domoticz plugin for DDS238 ZN/S energy meters (with Modbus port) - Version 2.0 </h2>
+        <h2>Domoticz plugin for DDS238 ZN/S energy meters (with Modbus port) - Version 2.1 </h2>
         <b>More than one meter can be connected to the same bus</b>, specifying their addresses separated by comma, for example <tt>2,3,124</tt>  to read energy meters with slave address 1, 2, 3, 124.<br/><u>DO NOT CHANGE THE EXISTING SEQUENCE</u> by adding new devices between inside, but just add new device in the end of the sequence, e.g. <tt>2,3,124,6,4,5</tt><br/>
         It's possible to reprogram a meter slave address by editing the corresponding Power Factor device Description field, changing ADDR=x to ADDR=y (y between 1 and 247), then clicking on Update button<br/>
         When the first meter is connected, <b>it's strongly recommended to immediately change default address from 1 to 2 (or more)</b> to permit, in the future, to add new meters.<br/>
@@ -77,7 +77,6 @@ DEVS={ #unit:     Type,Sub,swtype, Options, Image,  "en name", "it name"  ...oth
             # ToDo: add relay device?
 }
 
-DEVSMAX=10;
 DEVICEIDPREFIX="DDS238"
 
 class BasePlugin:
@@ -147,7 +146,6 @@ class BasePlugin:
                             Description=f"Meter Addr={slave}"
                         Domoticz.Log(f"Creating device DeviceID={devID}, Name='Meter={slave}: {DEVS[i][self.lang]}', Description='{Description}', Unit={unit}, Type={DEVS[i][DEVTYPE]}, Subtype={DEVS[i][DEVSUBTYPE]}, Switchtype={DEVS[i][DEVSWITCHTYPE]}, Options={Options}, Image={Image}")
                         Domoticz.Unit(DeviceID=devID, Name=f"Meter={slave}: {DEVS[i][self.lang]}", Description=Description, Unit=unit, Type=DEVS[i][DEVTYPE], Subtype=DEVS[i][DEVSUBTYPE], Switchtype=DEVS[i][DEVSWITCHTYPE], Options=Options, Image=Image, Used=1).Create()
-                s+=DEVSMAX
 
 
     def onStop(self):
@@ -218,8 +216,9 @@ class BasePlugin:
                 opt=opt.strip().upper()
                 if (opt[:5]=="ADDR="):
                     par=int(float(opt[5:]))
-                    slave=self.slaves[int(Unit/DEVSMAX)]
-                    if par>=1 and par<=247 and par!=slave:
+                    slave=int(DeviceID.split("_")[-1])
+                    #Domoticz.Log(f"Slave={slave}, NewADDR={par}, slaves={self.slaves}")
+                    if par>=1 and par<=247 and par!=slave and slave in self.slaves:
                         # Change Modbus slave address to this device
                         baudValue=1
                         if Parameters["Mode1"]==4800:
@@ -260,7 +259,7 @@ def onCommand(DeviceID, Unit, Command, Level, Color):
     global _plugin
     _plugin.onCommand(DeviceID, Unit, Command, Level, Color)
 
-def onDeviceModified(Unit):
+def onDeviceModified(DeviceID, Unit):
     global _plugin
-    _plugin.onDeviceModified(Unit)
+    _plugin.onDeviceModified(DeviceID, Unit)
 
