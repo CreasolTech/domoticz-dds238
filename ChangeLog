@@ -1,5 +1,9 @@
 # domoticz-dds238 plugin
 
+2025-01-11 Rev 2.2
+Now serial port is open in non-exclusive mode, to permit sharing the port with
+other plugins
+
 2024-12-02 Rev 2.1
 BugFix: Rev2.0 did not permit to change the slave address of a device. Fixed.
 
