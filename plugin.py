@@ -88,8 +88,6 @@ class BasePlugin:
         return
 
     def modbusInit(self, slave):
-        if self.rs485:
-            return
         self.rs485 = minimalmodbus.Instrument(Parameters["SerialPort"], int(slave), "rtu", True, True)
         self.rs485.serial.baudrate = Parameters["Mode1"]
         self.rs485.serial.bytesize = 8
