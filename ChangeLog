@@ -1,5 +1,9 @@
 # domoticz-dds238 plugin
 
+2025-02-05 Rev 2.3
+Now plugin performs 2 access to the serial port in exclusive mode: if both
+fails, try a 3rd access in non-exclusive mode
+
 2025-01-11 Rev 2.2
 Now serial port is open in non-exclusive mode, to permit sharing the port with
 other plugins

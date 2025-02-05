@@ -23,9 +23,9 @@ English (en)            Italian (it)                    YourLanguage (??)
 """
 
 """
-<plugin key="dds238" name="DDS238 ZN/S energy meters, connected by serial port"  version="2.2" author="CreasolTech" externallink="https://github.com/CreasolTech/domoticz-dds238">
+<plugin key="dds238" name="DDS238 ZN/S energy meters, connected by serial port"  version="2.3" author="CreasolTech" externallink="https://github.com/CreasolTech/domoticz-dds238">
     <description>
-        <h2>Domoticz plugin for DDS238 ZN/S energy meters (with Modbus port) - Version 2.2 </h2>
+        <h2>Domoticz plugin for DDS238 ZN/S energy meters (with Modbus port) - Version 2.3 </h2>
         <b>More than one meter can be connected to the same bus</b>, specifying their addresses separated by comma, for example <tt>2,3,124</tt>  to read energy meters with slave address 1, 2, 3, 124.<br/><u>DO NOT CHANGE THE EXISTING SEQUENCE</u> by adding new devices between inside, but just add new device in the end of the sequence, e.g. <tt>2,3,124,6,4,5</tt><br/>
         It's possible to reprogram a meter slave address by editing the corresponding Power Factor device Description field, changing ADDR=x to ADDR=y (y between 1 and 247), then clicking on Update button<br/>
         When the first meter is connected, <b>it's strongly recommended to immediately change default address from 1 to 2 (or more)</b> to permit, in the future, to add new meters.<br/>
@@ -53,6 +53,7 @@ English (en)            Italian (it)                    YourLanguage (??)
 
 import minimalmodbus    #v2.1.1
 import random
+import time
 import DomoticzEx as Domoticz     
 
 
@@ -81,19 +82,21 @@ DEVICEIDPREFIX="DDS238"
 
 class BasePlugin:
     def __init__(self):
-        self.rs485 = ""
+        self.rs485 = None
         self.slaves = [1]
         self.prefix = ""
         return
 
     def modbusInit(self, slave):
+        if self.rs485:
+            return
         self.rs485 = minimalmodbus.Instrument(Parameters["SerialPort"], int(slave), "rtu", True, True)
         self.rs485.serial.baudrate = Parameters["Mode1"]
         self.rs485.serial.bytesize = 8
         self.rs485.serial.parity = minimalmodbus.serial.PARITY_NONE
         self.rs485.serial.stopbits = 1
         self.rs485.serial.timeout = 0.5
-        self.rs485.serial.exclusive = True 
+        self.rs485.serial.exclusive = True
         self.rs485.debug = True
         self.rs485.mode = minimalmodbus.MODE_RTU
         self.rs485.close_port_after_each_call = True
@@ -155,55 +158,60 @@ class BasePlugin:
         for slave in self.slaves:
             # read all registers in one shot
             if slave>1 and slave<=247:
-                try:
-                    self.modbusInit(slave)
-                    # Read data from energy meter
-                    registerEnergy=self.rs485.read_registers(0, 2, 3) # Read  registers from 0 to 8, using function code 3
-                    register=self.rs485.read_registers(8, 10, 3) # Read  registers from 8 to 0x11, using function code 3
-                    self.rs485.serial.close()  #  Close that door !
-                except Exception as error:
-                    Domoticz.Error(f"Error reading Modbus registers from device {slave}: {error}. Increment Heartbeat time")
-                    self.heartbeatNow=self.pollTime+random.randint(1,5)    # manage collisions, increasing heartbeat by a random number between 1 and 4
-                    Domoticz.Heartbeat(self.heartbeatNow)
-                else:
-                    if self.heartbeatNow!=self.pollTime:
-                        self.heartbeatNow=self.pollTime     # restore normal heartbeat time, as defined in the plugin configuration
+                for retry in range(1,4):
+                    try:
+                        self.modbusInit(slave)
+                        if retry>=3:
+                            self.rs485.serial.exclusive = False
+                        # Read data from energy meter
+                        registerEnergy=self.rs485.read_registers(0, 2, 3) # Read  registers from 0 to 8, using function code 3
+                        register=self.rs485.read_registers(8, 10, 3) # Read  registers from 8 to 0x11, using function code 3
+                        self.rs485.serial.close()  #  Close that door !
+                    except Exception as error:
+                        Domoticz.Error(f"Try={retry}: Error reading Modbus registers from device {slave}: {error}. Increment Heartbeat time")
+                        self.heartbeatNow=self.pollTime+random.randint(1,5)    # manage collisions, increasing heartbeat by a random number between 1 and 4
                         Domoticz.Heartbeat(self.heartbeatNow)
-                    voltage=register[4]/10                          # V
-                    current=register[5]/100                         # A
-                    power=register[6]                               # W signed
-                    if (power>=32768):
-                        power=power-65536
-                        powerImp=0
-                        powerExp=0-power
+                        time.sleep(0.2)
                     else:
-                        powerImp=power
-                        powerExp=0
-                    energy=(registerEnergy[1] + (registerEnergy[0]<<16))*10 # Wh
-                    energyImp=(register[3] + (register[2]<<16))*10     # Wh
-                    energyExp=(register[1] + (register[0]<<16))*10     # Wh
-                    energyNet=energyImp-energyExp
-                    frequency=register[9]/100                       # Hz
-                    pf=register[8]/10                               # %
+                        if self.heartbeatNow!=self.pollTime:
+                            self.heartbeatNow=self.pollTime     # restore normal heartbeat time, as defined in the plugin configuration
+                            Domoticz.Heartbeat(self.heartbeatNow)
+                        voltage=register[4]/10                          # V
+                        current=register[5]/100                         # A
+                        power=register[6]                               # W signed
+                        if (power>=32768):
+                            power=power-65536
+                            powerImp=0
+                            powerExp=0-power
+                        else:
+                            powerImp=power
+                            powerExp=0
+                        energy=(registerEnergy[1] + (registerEnergy[0]<<16))*10 # Wh
+                        energyImp=(register[3] + (register[2]<<16))*10     # Wh
+                        energyExp=(register[1] + (register[0]<<16))*10     # Wh
+                        energyNet=energyImp-energyExp
+                        frequency=register[9]/100                       # Hz
+                        pf=register[8]/10                               # %
 
-                    Domoticz.Status(f"Slave={slave}, P={power}W E={energy/1000}kWh Imp={energyImp/1000}kWh Exp={energyExp/1000}kWh V={voltage}V I={current}A, f={frequency}Hz PF={pf}%")
-                    devID=f"{self.prefix}_{slave}"
-                    Devices[devID].Units[1].sValue=f"{power};{energy}"
-                    Devices[devID].Units[1].Update()
-                    Devices[devID].Units[2].sValue=f"{powerImp};{energyImp}"      # imported power/energy
-                    Devices[devID].Units[2].Update()
-                    Devices[devID].Units[3].sValue=f"{powerExp};{energyExp}"      # exported power/energy
-                    Devices[devID].Units[3].Update()
-                    Devices[devID].Units[4].sValue=str(voltage)
-                    Devices[devID].Units[4].Update()
-                    Devices[devID].Units[5].sValue=str(current)
-                    Devices[devID].Units[5].Update()
-                    Devices[devID].Units[6].sValue=str(frequency)
-                    Devices[devID].Units[6].Update()
-                    Devices[devID].Units[7].sValue=str(pf)
-                    Devices[devID].Units[7].Update()
-                    Devices[devID].Units[8].sValue=f"{power};{energyNet}"      # Net energy = imported energy - exported energy.  power=signed energy (negative if exported)
-                    Devices[devID].Units[8].Update()
+                        Domoticz.Status(f"Try={retry}: Slave={slave}, P={power}W E={energy/1000}kWh Imp={energyImp/1000}kWh Exp={energyExp/1000}kWh V={voltage}V I={current}A, f={frequency}Hz PF={pf}%")
+                        devID=f"{self.prefix}_{slave}"
+                        Devices[devID].Units[1].sValue=f"{power};{energy}"
+                        Devices[devID].Units[1].Update()
+                        Devices[devID].Units[2].sValue=f"{powerImp};{energyImp}"      # imported power/energy
+                        Devices[devID].Units[2].Update()
+                        Devices[devID].Units[3].sValue=f"{powerExp};{energyExp}"      # exported power/energy
+                        Devices[devID].Units[3].Update()
+                        Devices[devID].Units[4].sValue=str(voltage)
+                        Devices[devID].Units[4].Update()
+                        Devices[devID].Units[5].sValue=str(current)
+                        Devices[devID].Units[5].Update()
+                        Devices[devID].Units[6].sValue=str(frequency)
+                        Devices[devID].Units[6].Update()
+                        Devices[devID].Units[7].sValue=str(pf)
+                        Devices[devID].Units[7].Update()
+                        Devices[devID].Units[8].sValue=f"{power};{energyNet}"      # Net energy = imported energy - exported energy.  power=signed energy (negative if exported)
+                        Devices[devID].Units[8].Update()
+                        break # exit from retry loop
 
     def onCommand(self, DeviceID, Unit, Command, Level, Color):
         Domoticz.Status(f"Command for {Devices[Unit].Name}: Unit={Unit}, Command={Command}, Level={Level}")
