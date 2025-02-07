@@ -94,6 +94,7 @@ class BasePlugin:
         self.rs485.serial.parity = minimalmodbus.serial.PARITY_NONE
         self.rs485.serial.stopbits = 1
         self.rs485.serial.timeout = 0.5
+        self.rs485.serial.write_timeout=0 # used in case of problem opening serial device: 0 => return immediately in case of error writing port
         self.rs485.serial.exclusive = True
         self.rs485.debug = True
         self.rs485.mode = minimalmodbus.MODE_RTU
@@ -153,6 +154,7 @@ class BasePlugin:
         Domoticz.Log("Stopping DDS238 plugin")
 
     def onHeartbeat(self):
+        errors=0
         for slave in self.slaves:
             # read all registers in one shot
             if slave>1 and slave<=247:
@@ -166,10 +168,9 @@ class BasePlugin:
                         register=self.rs485.read_registers(8, 10, 3) # Read  registers from 8 to 0x11, using function code 3
                         self.rs485.serial.close()  #  Close that door !
                     except Exception as error:
-                        Domoticz.Error(f"Try={retry}: Error reading Modbus registers from device {slave}: {error}. Increment Heartbeat time")
-                        self.heartbeatNow=self.pollTime+random.randint(1,5)    # manage collisions, increasing heartbeat by a random number between 1 and 4
-                        Domoticz.Heartbeat(self.heartbeatNow)
+                        Domoticz.Error(f"Try={retry}: Error reading Modbus registers from device {slave}: {error}")
                         time.sleep(0.2)
+                        errors+=1
                     else:
                         if self.heartbeatNow!=self.pollTime:
                             self.heartbeatNow=self.pollTime     # restore normal heartbeat time, as defined in the plugin configuration
@@ -209,7 +210,12 @@ class BasePlugin:
                         Devices[devID].Units[7].Update()
                         Devices[devID].Units[8].sValue=f"{power};{energyNet}"      # Net energy = imported energy - exported energy.  power=signed energy (negative if exported)
                         Devices[devID].Units[8].Update()
+                        errors-=retry
                         break # exit from retry loop
+
+        if errors>0:
+            self.heartbeatNow=self.pollTime+random.randint(1,5)    # manage collisions, increasing heartbeat by a random number between 1 and 4
+            Domoticz.Heartbeat(self.heartbeatNow)
 
     def onCommand(self, DeviceID, Unit, Command, Level, Color):
         Domoticz.Status(f"Command for {Devices[Unit].Name}: Unit={Unit}, Command={Command}, Level={Level}")
