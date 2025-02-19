@@ -168,7 +168,10 @@ class BasePlugin:
                         register=self.rs485.read_registers(8, 10, 3) # Read  registers from 8 to 0x11, using function code 3
                         self.rs485.serial.close()  #  Close that door !
                     except Exception as error:
-                        Domoticz.Error(f"Try={retry}: Error reading Modbus registers from device {slave}: {error}")
+                        if retry<3:
+                            Domoticz.Status(f"Try={retry}: Error reading Modbus registers from device {slave}: {error}")
+                        else:
+                            Domoticz.Error(f"Try={retry}: Error reading Modbus registers from device {slave}: {error}")
                         time.sleep(0.2)
                         errors+=1
                     else:
