@@ -217,7 +217,8 @@ class BasePlugin:
                         break # exit from retry loop
 
         if errors>0:
-            self.heartbeatNow=self.pollTime+random.randint(1,5)    # manage collisions, increasing heartbeat by a random number between 1 and 4
+            self.heartbeatNow=self.pollTime+random.randint(1,4)    # manage collisions, increasing heartbeat by a random number between 1 and 3
+            Domoticz.Status(f"Increase heartbeat to {self.heartbeatNow}")
             Domoticz.Heartbeat(self.heartbeatNow)
 
     def onCommand(self, DeviceID, Unit, Command, Level, Color):
