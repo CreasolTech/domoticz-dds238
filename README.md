@@ -174,16 +174,19 @@ Many thanks to:
 
 ## Creasol DomBus modules
 
-Below a list of modules, produced in Italy by Creasol, designed for high reliability and optimized for very very low power consumption.
+Below a **list of domotic modules**, produced in Italy by Creasol, **designed for high reliability and optimized for very very low power consumption**.
 
 Our industrial and home automation modules are designed to be
 * very low power &rArr; **10÷15mW with relays OFF**
+* low power relay consumption &rArr; **only 750mW with 12 relays ON**
 * reliable &rArr; **no disconnections**
 * wired network (bus) &rArr; **no radiofrequency interference, no battery to replace**
 
 Modules are available in two versions:
-1. with **DomBus proprietary protocol**, suitable for every type of DomBus modules, working with [Domoticz](https://www.domoticz.com) by using the Creasol DomBus plugin, and [Home Assistant](https://www.home-assistant.io), [OpenHAB](https://www.openhab.org), [Node-RED](https://nodered.org) ... by using the [DomBusGateway software, a DomBus 2 MQTT-AutoDiscovery interface](https://www.creasol.it/DomBusGateway)
+1. with **DomBus proprietary low-latency protocol**, working with [Domoticz](https://www.domoticz.com) by using the [Creasol DomBus plugin](https://github.com/CreasolTech/CreasolDomBus), and [Home Assistant](https://www.home-assistant.io), [OpenHAB](https://www.openhab.org), [Node-RED](https://nodered.org) ... by using the [DomBusGateway software, a DomBus 2 MQTT-AutoDiscovery interface](https://www.creasol.it/DomBusGateway)
 2. with **Modbus standard protocol**, suitable for relays modules, EVSE and Dual Axis solar tracker, working with almost any building automation system supporting Modbus
+
+![DomBusGateway, a DomBus 2 MQTT bridge](https://images.creasol.it/dombusgateway_block1.webp)
 
 What version is the best? DomBus version, because:
 
@@ -201,7 +204,7 @@ What version is the best? DomBus version, because:
 
 ### DomBusEVSE - EVSE module to build a Smart Wallbox / EV charging station
 <a href="https://store.creasol.it/DomBusEVSE"><img src="https://images.creasol.it/creDomBusEVSE_plug_300.webp" alt="DomBusEVSE smart EVSE module to make a Smart Wallbox EV Charging station" style="float: left; margin-right: 2em;" align="left" /></a>
-Complete solution to make a Smart EVSE, **charging the electric vehicle using only energy from renewable source (photovoltaic, wind, ...), or adding 25-50-75-100% of available power from the grid**.
+Complete solution to make a full-features Smart EVSE, **charging the electric vehicle using only energy from renewable source (photovoltaic, wind, ...), or adding 25-50-75-100% of available power from the grid**.
 
 * **Single-phase and three-phase**, up to 32A (8kW or 22kW)
 * Needs external contactor, RCCB (protection) and EV cable
@@ -209,6 +212,10 @@ Complete solution to make a Smart EVSE, **charging the electric vehicle using on
 * Optional power meter to measure the power usage from the grid (not needed if already exists)
 * **Two max grid power thresholds** can be programmed: for example, in Italy who have 6kW contractual power can drain from the grid Max (6* 1.27)=7.6kW for max 90 minutes followed by (6* 1.1)=6.6kW for another 90 minutes: in this case **the EVSE module can drain ALL available power** when programmed to charge at 100% **minimizing the charge time and increasing the charging efficiency**.
 * **Works without the domotic controller** (stand-alone mode), and **can also work in *managed mode*, with an automation in the home automation system setting the charging current**
+
+**Want to build a home-made, full features, EV charging station? Discover our KITs!** \
+ [KIT for single phase wallbox](https://store.creasol.it/EVSE1P) \
+ [KIT for three phase wallbox](https://store.creasol.it/EVSE3P)
 
 <br clear="all"/>
 
