@@ -186,8 +186,6 @@ Modules are available in two versions:
 1. with **DomBus proprietary low-latency protocol**, working with [Domoticz](https://www.domoticz.com) by using the [Creasol DomBus plugin](https://github.com/CreasolTech/CreasolDomBus), and [Home Assistant](https://www.home-assistant.io), [OpenHAB](https://www.openhab.org), [Node-RED](https://nodered.org) ... by using the [DomBusGateway software, a DomBus 2 MQTT-AutoDiscovery interface](https://www.creasol.it/DomBusGateway)
 2. with **Modbus standard protocol**, suitable for relays modules, EVSE and Dual Axis solar tracker, working with almost any building automation system supporting Modbus
 
-![DomBusGateway, a DomBus 2 MQTT bridge](https://images.creasol.it/dombusgateway_block1.webp)
-
 What version is the best? DomBus version, because:
 
 **Modbus** is a standard protocol Master/Slave: the controller must poll each module to get its status, so it's **not suitable to manage inputs and counters that change frequently**, but can be used to manage relay outputs or read inputs status every 2-5s
